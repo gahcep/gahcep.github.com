@@ -169,9 +169,6 @@ pre, code {
   border-radius: 2px;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
-
-
-
 }
 
 pre {
@@ -277,6 +274,7 @@ Full-Width Styles
   margin: 0 auto;
 }
 
+/*
 #forkme_banner {
   display: block;
   position: absolute;
@@ -291,19 +289,7 @@ Full-Width Styles
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;
 }
-
-#header_wrap {
-  background: #212121;
-  background: -moz-linear-gradient(top, #373737, #212121);
-  background: -webkit-linear-gradient(top, #373737, #212121);
-  background: -ms-linear-gradient(top, #373737, #212121);
-  background: -o-linear-gradient(top, #373737, #212121);
-  background: linear-gradient(top, #373737, #212121);
-}
-
-#header_wrap .inner {
-  padding: 50px 10px 30px 10px;
-}
+*/
 
 #project_title {
   margin: 0;
@@ -331,6 +317,7 @@ Full-Width Styles
   background: url('../images/icon_download.png') no-repeat 0% 90%;
 }
 
+/*
 .zip_download_link {
   display: block;
   float: right;
@@ -359,6 +346,20 @@ Full-Width Styles
 .tar_download_link:hover {
   background: url(../images/sprite_download.png) no-repeat top right;
 }
+*/
+
+#header_wrap {
+  background: #212121;
+  background: -moz-linear-gradient(top, #373737, #212121);
+  background: -webkit-linear-gradient(top, #373737, #212121);
+  background: -ms-linear-gradient(top, #373737, #212121);
+  background: -o-linear-gradient(top, #373737, #212121);
+  background: linear-gradient(top, #373737, #212121);
+}
+
+#header_wrap .inner {
+  padding: 50px 10px 30px 10px;
+}
 
 #main_content_wrap {
   background: #f2f2f2;
@@ -374,12 +375,82 @@ Full-Width Styles
   background: #212121;
 }
 
+/*******************************************************************************
+gaHcep's additions
+*******************************************************************************/
+
+* html #footer_ {
+  height:1px;
+}
+
+#nav {
+  padding:5px 10px;
+  background:#c99;
+  position:fixed;
+  width:100%;
+}
+
+#nav ul {
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+  
+#nav li {
+  display:inline;
+  margin:0;
+  padding:0;
+}
+
+
+#g_body {
+	margin:0 auto;
+	background:#ddd;
+	width:100%;
+}
+
+#g_content-1 {
+	float:left;
+    width:20%;
+    padding:10px;
+    background:#f2f2f2;
+}
+#g_content-2 {
+	float:right;
+	width:78%;
+}
+#g_content-2-1 {
+	float:left;
+    width:52%;
+    padding:10px;
+    background: #f2f2f2;
+}
+#g_content-2-2 {
+	float:right;
+    width:45%;
+    padding:10px;
+    background:#f2f2f2;
+    
+}
+
+#g_content-2-2 li {
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+
+
+#g_footer {
+	clear:both;
+    padding:10px;
+    background:#212121;
+}
 
 
 /*******************************************************************************
 Small Device Styles
 *******************************************************************************/
-
+/*
 @media screen and (max-width: 480px) {
   body {
     font-size:14px;
@@ -429,3 +500,4 @@ Small Device Styles
   }
 
 }
+*/

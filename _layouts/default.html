@@ -12,46 +12,67 @@
 </head>
 
 <body>
+    <div id="g_body">
+   
+	<div id="nav">
+		<ul>
+			<li><a href="#">Option 1</a></li>
+			<li><a href="#">Option 2</a></li>
+		</ul>
+	</div>
 
-  <!-- HEADER -->
-  <div id="header_wrap" class="outer">
-    <header class="inner">
-      <h1 id="project_title">Gahcep.github.com</h1>
-      <h2 id="project_tagline"></h2>
-    </header>
-  </div>
+   	    <div id="header_wrap" class="outer">
+	    	<header class="inner">
+		      <h1 id="project_title">Gahcep.github.com</h1>
+		      
+		    </header>
+	    </div>
+	    
+	     <!-- BODY -->
+  	    <div id="main_content_wrap" class="outer">
+	    	
+	    	<div id="g_content-1">
+	    		<p>This is <code>&lt;div id="content-1"&gt;</code>.</p>
+	    	</div>
+	    	
+	    	<div id="g_content-2">
+	    		<div id="g_content-2-1">
+	    			{{ content }}
+				</div>
+				<div id="g_content-2-2">
+				
+				
+					<!-- POST LIST -->
+				<ul>
+				     {% for post in site.posts %}
+				     <li>
+				         <h3>
+				             <a href="{{ post.url }}">
+				                 {{ post.title }}
+				             </a>
+				             <span>
+				                 {{ post.date | date_to_string }}
+				             </span>
+				         </h3>
+				     </li>
+				     {% endfor %}
+				  </ul>
+			
+	    		</div>
+	    	</div>
+	    </div>
+	    
+	    <!-- FOOTER -->
+  	    <div id="g_footer">
+		    <footer class="inner">
+		      {% include footer.html %}
+		    </footer>
+	    </div>
+    </div>
 
-  <!-- POST LIST -->
-  <div>
-  <ul>
-     {% for post in site.posts %}
-     <li>
-         <h3>
-             <a href="{{ post.url }}">
-                 {{ post.title }}
-             </a>
-             <span>
-                 {{ post.date | date_to_string }}
-             </span>
-         </h3>
-     </li>
-     {% endfor %}
-  </ul>
-
-  </div>
-
-  <!-- BODY -->
-  <div id="main_content_wrap" class="outer"> 
-    {{ content }}
-  </div>
-
-  <!-- FOOTER -->
-  <div id="footer_wrap" class="outer">
-    <footer class="inner">
-      {% include footer.html %}
-    </footer>
-  </div>
-
+  
+  
+  
     
 </body>
 </html>
