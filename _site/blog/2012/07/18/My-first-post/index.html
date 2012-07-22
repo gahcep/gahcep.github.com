@@ -66,9 +66,13 @@
 	    	<div id="sidebar-inner" style="width:75%;">
 	    		<div id="sidebar-inner-left">
 	    			<h1> Header #1 </h1>
+
+<a href="http://gahcep.github.com/blog/2012/07/18/My-first-post#disqus_thread" data-disqus-identifier="/blog/2012/07/18/My-first-post">sdfgdfg</a>
+sdf
+
 <h2> Header #2 </h2>
 
-Just simple meaningless text here<br>
+Just simple **meaningless** text here<br>
 
 It's an end<br>
  > 1<br>
@@ -84,19 +88,48 @@ It's an end<br>
 <span class="k">end</span>
 </code></pre>
 </div>
+<br><br>
+<div class="highlight"><pre><code class="js"><span class="kd">var</span> <span class="nx">validator</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">FormValidator</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">,[</span>
+  <span class="p">{</span>
+    <span class="nx">name</span><span class="o">:</span><span class="s1">&#39;required&#39;</span><span class="p">,</span>
+    <span class="nx">display</span><span class="o">:</span><span class="s1">&#39;Required&#39;</span><span class="p">,</span>
+    <span class="nx">rules</span><span class="o">:</span><span class="s1">&#39;required&#39;</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nx">name</span><span class="o">:</span><span class="s1">&#39;email&#39;</span><span class="p">,</span>
+    <span class="nx">display</span><span class="o">:</span><span class="s1">&#39;Email&#39;</span><span class="p">,</span>
+    <span class="nx">rules</span><span class="o">:</span><span class="s1">&#39;required|valid_email&#39;</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nx">name</span><span class="o">:</span><span class="s1">&#39;pass&#39;</span><span class="p">,</span>
+    <span class="nx">display</span><span class="o">:</span><span class="s1">&#39;Password&#39;</span><span class="p">,</span>
+    <span class="nx">rules</span><span class="o">:</span><span class="s1">&#39;required|matches[passConf]&#39;</span>
+  <span class="p">}],</span>
+  <span class="kd">function</span><span class="p">(</span><span class="nx">errors</span><span class="p">,</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="c1">//handle errors</span>
+      <span class="p">}</span>
+  <span class="p">});</span>
+</code></pre>
+</div>
+
+<br><br><hr><br>
+<div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'gahcep'; // required: replace example with your forum shortname
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
 
-<!-- START: Livefyre Embed -->
-<script type='text/javascript' src='http://zor.livefyre.com/wjs/v1.0/javascripts/livefyre_init.js'></script>
-<script type='text/javascript'>
-    var fyre = LF({
-        site_id: 308253
-    });
-</script>
-<!-- END: Livefyre Embed -->
-       
-
-Test
 				</div>
 			
 				<div id="sidebar-inner-right">
@@ -119,6 +152,20 @@ Test
 		    </footer>
 	    </div>
 	</div>
+	
+	<script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'gahcep'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script'); s.async = true;
+            s.type = 'text/javascript';
+            s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+		
 </body>
 </html>
 
