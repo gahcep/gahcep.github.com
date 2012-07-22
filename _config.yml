@@ -1,7 +1,7 @@
 auto: true
 server: false
 server_port: 4000
-markdown: maruku
+markdown: rdiscount
 pygments: true
 permalink: /blog/:year/:month/:day/:title
 
