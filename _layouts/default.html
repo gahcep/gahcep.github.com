@@ -11,55 +11,34 @@
  <title>{{ page.title }}</title>
 </head>
 
-<body>
-    <div id="g_body">
+<body background="white">
+    <div id="wrapper">
    
-	<div id="nav">
-		<ul>
-			<li><a href="#">Option 1</a></li>
-			<li><a href="#">Option 2</a></li>
-		</ul>
-	</div>
+		<!-- Fixed navigation panel -->
+		<div id="nav">
+			{% include navi_bar.html %}
+		</div>
 
-   	    <div id="header_wrap" class="outer">
-	    	<header class="inner">
-		      <h1 id="project_title">Gahcep.github.com</h1>
-		      
-		    </header>
-	    </div>
+		<!-- Header -->
+		<div id="header_wrap" class="outer">
+			{% include header.html %}
+		</div>
 	    
-	     <!-- BODY -->
-  	    <div id="main_content_wrap" class="outer">
-	    	
-	    	<div id="g_content-1">
-	    		<p>This is <code>&lt;div id="content-1"&gt;</code>.</p>
+	    <!-- BODY -->
+  	    <div id="sidebar-main" class="outer">
+	    	<div id="sidebar-left">
 	    	</div>
-	    	
-	    	<div id="g_content-2">
-	    		<div id="g_content-2-1">
+
+			<!-- POST LIST -->
+	    	<div id="sidebar-inner">
+	    		<div id="sidebar-inner-left">
 	    			{{ content }}
 				</div>
-				<div id="g_content-2-2">
-				
-				
-					<!-- POST LIST -->
-				<ul>
-				     {% for post in site.posts %}
-				     <li>
-				         <h3>
-				             <a href="{{ post.url }}">
-				                 {{ post.title }}
-				             </a>
-				             <span>
-				                 {{ post.date | date_to_string }}
-				             </span>
-				         </h3>
-				     </li>
-				     {% endfor %}
-				  </ul>
 			
-	    		</div>
-	    	</div>
+				<div id="sidebar-inner-right">
+				</div>
+				
+			</div>
 	    </div>
 	    
 	    <!-- FOOTER -->
@@ -68,11 +47,8 @@
 		      {% include footer.html %}
 		    </footer>
 	    </div>
+	    </div>
     </div>
-
-  
-  
-  
     
 </body>
 </html>

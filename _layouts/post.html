@@ -6,33 +6,54 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1" />
     <meta name="description" content="Gahcep.github.com : " />
 
-    <link rel="stylesheet" type="text/css" media="screen" href="/css/stylesheet.css">	
-	
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/stylesheet.css">
+
  <title>{{ page.title }}</title>
 </head>
 
 <body>
+    <div id="wrapper">
+   
+		<!-- Fixed navigation panel -->
+		<div id="nav">
+			{% include navi_bar.html %}
+		</div>
 
-  <!-- HEADER -->
-  <div id="header_wrap" class="outer">
-    <header class="inner">
-      <h1 id="project_title">Gahcep.github.com</h1>
-      <h2 id="project_tagline"></h2>
-    </header>
-  </div>
+		<!-- Header -->
+		<div id="header_wrap" class="outer">
+			{% include header.html %}
+		</div>
+	    
+	    <!-- BODY -->
+  	    <div id="sidebar-main" class="outer">
+	    	<div id="sidebar-left">
+	    		
+	    	</div>
+	    	
+			<!-- POST LIST -->
+	    	<div id="sidebar-inner" style="width:75%;">
+	    		<div id="sidebar-inner-left">
+	    			{{ content }}
+				</div>
+			
+				<div id="sidebar-inner-right">
+				</div>
+				
+			</div>
+	    </div>
+	    
+	    <!-- FOOTER -->
+  	    <div id="g_footer">
+		    <footer class="inner">
+		      {% include footer.html %}
+		    </footer>
+	    </div>
+	    </div>
+    </div>
 
-  <!-- BODY -->
-  <div id="main_content_wrap" class="outer"> 
-    {{ content }}
-  </div>
-
-  <!-- FOOTER -->
-  <div id="footer_wrap" class="outer">
-    <footer class="inner">
-      {% include footer.html %}
-    </footer>
-  </div>
-
+  
+  
+  
     
 </body>
 </html>

@@ -58,7 +58,7 @@ Theme Styles
 body {
   box-sizing: border-box;
   color:#373737;
-  background: #212121;
+  background: white;
   font-size: 16px;
   font-family: 'Myriad Pro', Calibri, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -361,10 +361,11 @@ Full-Width Styles
   padding: 50px 10px 30px 10px;
 }
 
-#main_content_wrap {
+#sidebar-main{
   background: #f2f2f2;
   border-top: 1px solid #111;
-  border-bottom: 1px solid #111;
+  border-bottom: 100 solid #111;
+  width:100%;
 }
 
 #main_content {
@@ -385,9 +386,12 @@ gaHcep's additions
 
 #nav {
   padding:5px 10px;
-  background:#c99;
+  background:#212121;
   position:fixed;
   width:100%;
+  overflow: hidden;
+  z-index:10;
+  height:40px;
 }
 
 #nav ul {
@@ -399,51 +403,61 @@ gaHcep's additions
 #nav li {
   display:inline;
   margin:0;
-  padding:0;
+  padding:2;
+  margin: 0 9px;
+  overflow: hidden;
+  background-color: #222222;
 }
 
-
-#g_body {
+#wrapper {
+	float:left;
 	margin:0 auto;
-	background:#ddd;
 	width:100%;
+	
 }
 
-#g_content-1 {
+#sidebar-left {
 	float:left;
-    width:20%;
+    width:15%;
     padding:10px;
-    background:#f2f2f2;
+    background:white;
 }
-#g_content-2 {
+#sidebar-inner {
 	float:right;
-	width:78%;
+	width:65%;
+	background:white;
+	min-height:300px;
 }
-#g_content-2-1 {
+#sidebar-inner-left{
 	float:left;
-    width:52%;
+    width:80%;
     padding:10px;
-    background: #f2f2f2;
+    background: white;
 }
-#g_content-2-2 {
+#sidebar-inner-right {
 	float:right;
-    width:45%;
-    padding:10px;
-    background:#f2f2f2;
-    
+    width:18%;
+    padding:0px;
 }
 
-#g_content-2-2 li {
+#sidebar-inner-left li {
   list-style:none;
   margin:0;
   padding:0;
 }
 
-
 #g_footer {
-	clear:both;
-    padding:10px;
-    background:#212121;
+  clear:both;
+  padding:5px 10px;
+  background:#212121;
+}
+
+#credentials_title {
+  margin: 0;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  text-shadow: #111 0px 0px 10px;
 }
 
 
