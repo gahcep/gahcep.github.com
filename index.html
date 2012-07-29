@@ -6,28 +6,74 @@ title: gaHcep's Blog
 	<h1 style="color:#333333">Posts</h1>
 	<hr>
 	
-	
-    {% for post in site.posts %}
-		<h5>
-	 <li style="padding:4px;background:white">
+    {% for post in paginator.posts %}
+		<h5><i>
+	<li style="padding:4px;background:white">
 			<a href="{{ post.url }}">
 				 {{ post.title }}
-			</a><br>
-			<span style="font-weight:normal;font-size:16px;font-style:italic">
+			</a>
+			<br>
+			<span class="post-label">Category:</span>
+			<span class="post-category">
+				 {{ post.category" }}
+			</span>
+			
+			<br>
+			<span class="post-summary">
 				 {{ post.summary }}
-			 </span>
-			 <br>
-			<span style="font-weight:normal;font-size:14px;color:#888888">
+			</span>
+			<br>
+			<span class="post-date">
 				 {{ post.date | date: "%B %e, %Y" }}
 			</span>
-			<p><h1><a href="http://gahcep.github.com{{ post.url }}#disqus_thread"></a></h1></p>
+			<span style="float:right;">
+				 <a class="post-comments" href="http://gahcep.github.com{{ post.url }}#disqus_thread"></a>
+			</span>
 			<br>
-			<span style="font-weight:bold;font-size:14px;">Category:</span>
-			<span style="font-weight:normal;font-size:14px;color:#888888">
-				 {{ post.category" }}
-			</span> 
-		 </h5>
-	 </li>
-	 {% endfor %}
-	 
+		</i></h5>
+	</li>
+	{% endfor %}
 </ul>
+
+<br><br>
+<hr>
+<br>
+{% if paginator.total_pages != 1 %}
+<ul id="pagination-clean">
+	<!-- PREVIOUS -->
+	{% if paginator.previous_page %}
+	
+		{% if paginator.previous_page == 1 %}
+		<span class="previous"><a href="/">Previous</a></span>
+		{% else %}
+		<span class="previous"><a href="/page{{paginator.previous_page}}">Previous</a></span>
+		{% endif %}
+	
+	{% else %}
+	<span class="previous-off">Previous</span>
+	{% endif %}
+	
+		{% if paginator.page == 1 %}
+		<span class="active">1</span>
+		{% else %}
+		<span><a href="/">1</a></span>
+		{% endif %}
+	
+	{% for count in (2..paginator.total_pages) %}
+		{% if count == paginator.page %}
+		<span class="active">{{count}}</span>
+		{% else %}
+		<span><a href="/page{{count}}">{{count}}</a></span>
+		{% endif %}
+		
+	{% endfor %}
+	
+	<!-- NEXT -->
+	{% if paginator.next_page %}
+	<span class="next"><a href="/page{{paginator.next_page}}">Next</a></span>
+	{% else %}
+	<span class="next-off">Next</span>
+	{% endif %}
+</ul>
+
+{% endif %}

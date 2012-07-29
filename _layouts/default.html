@@ -9,6 +9,19 @@
     <link rel="stylesheet" type="text/css" media="screen" href="/css/stylesheet.css">
 
  <title>{{ page.title }}</title>
+ <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33733609-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
 </head>
 
 <body background="white">
@@ -27,7 +40,7 @@
 	    <!-- BODY -->
   	    <div id="sidebar-main" class="outer">
 	    	<div id="sidebar-left">
-	    	</div>
+			</div>
 
 			<!-- POST LIST -->
 	    	<div id="sidebar-inner">
@@ -37,7 +50,6 @@
 			
 				<div id="sidebar-inner-right">
 				</div>
-				
 			</div>
 	    </div>
 	    
@@ -46,7 +58,6 @@
 		    <footer class="inner">
 		      {% include footer.html %}
 		    </footer>
-	    </div>
 	    </div>
     </div>
     <script type="text/javascript">

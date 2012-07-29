@@ -8,8 +8,33 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="/css/stylesheet.css">
 	<link rel="stylesheet" type="text/css" media="screen" href="/css/pygments.css">
-
+<!--[if lt IE 9]>
+<script>
+document.createElement('header');
+document.createElement('nav');
+document.createElement('section');
+document.createElement('article');
+document.createElement('aside');
+document.createElement('footer');
+document.createElement('hgroup');
+</script>
+<![endif]-->
  <title>{{ page.title }}</title>
+ 
+ <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33733609-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
 </head>
 
 <body>
@@ -31,12 +56,30 @@
 	    		
 	    	</div>
 	    	
-			<!-- POST LIST -->
+			<!-- POST CONTENT -->
 	    	<div id="sidebar-inner" style="width:75%;">
-	    		<div id="sidebar-inner-left">
+				<div id="sidebar-inner-left">
+				<span style="font-weight:normal;font-size:14px;color:#888888">
+					{{ page.date | date: "%B %e, %Y" }}
+				</span>
+				<br>
+				<span class="post-label">Posted by:</span>
+				<span class="post-author">
+					{{ page.author" }}
+				</span>
+				<br>
+				<span class="post-label">Category:</span>
+				<span class="post-category">
+					{{ page.category" }}
+				</span>
+					
 	    			{{ content }}
+					
+				<!-- Snippets -->
+				{% include snip-post-navi.html %}
+				{% include snip-post-disqus.html %}
 				</div>
-			
+				
 				<div id="sidebar-inner-right">
 				</div>
 				
