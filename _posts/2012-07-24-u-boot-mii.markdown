@@ -1,0 +1,254 @@
+---
+layout: post
+title: Работаем с MII в U-BOOT
+category: Embedded, Network
+tags: uboot mii embedded
+author: gaHcep
+year: 2012
+month: 7
+day: 24
+published: true
+summary: Речь пойдет о сетевых интерфейсах в контексте embedded платформ, также вы узнаете, что значат такие термины как  MII, RGMII, eTSEC. В конце рассмотрим утилиту для работы с сетевыми регистрами - mii.
+---
+
+# Работаем с MII в U-BOOT
+
+Мир встраиваемых систем (Embedded System) очень широк. Как с точки зрения технологий в нем участвующих, так и с точки зрения всего прикладного железа (hardware). С каждым годом в нем становится жить все интереснее. 
+ 
+Этот пост не будет введением в мир Embedded (возможно будут другие посты об этом потом), но здесь вы найдете краткое описание одного из главных действующих в нем лиц – загрузчика U–BOOT. Также я постараюсь дать легкое введение в сетевую среду Embedded платформ – в посте будет идти речь о контроллере eTSEC, об интерфейсе MII и его производных RGMII, SGMII, – а также показана работа с утилитой входящей в состав U–BOOT и предоставляющей базовую функциональность при работе с регистрами PHY устройств через интерфейс MII.
+
+Прежде всего, стоит упомянуть то железо, на котором я буду проводить запуск команд и приводить результат их выполнения. Выбирать мне особо не из чего, потому загрузка U–BOOT будет происходить на плате Adbc7519 от Advatech с процем от Freescale – P1021. На плате доступны три контроллера eTSEC. Два из них сконфигурированы и инициализируются как SGMII, один – как RGMII. Все – гигабитные.
+
+## Терминология
+
+**U–BOOT** [*Universal Bootloader*] — универсальный системный загрузчик, используемый преимущественно во встраиваемых системах. Поддерживает просто огромное количество платформ (как популярныx, так и узкопрофильныx) и архитектур. Со списком можно ознакомиться открыв файл boards.cfg, лежащий в корне репозитория. В качестве апогея своего существования передает управление непосредственно образу ядра Linux.
+В ряде случаев, является первичным загрузчиком, однако есть платформы, на которых он является загрузчиком второго уровня (принимая подачу, к примеру, от X–Loader’а).
+
+**MII** [*Media Independent Interface*] — стандартизированный интерфейс в сетевом Ethernet мире, используемый в соединениях между MAC уровнем и PHY чипом. Если точнее, то благодаря независимости среды (Media Independent) данной шины, становится возможным соединять разные типы PHY устройств (имеются в виду устройства для связи с разными средами передачи данных – витая пара, оптика, пр.) с MAC слоем. Физическим воплощением стандарта MII является шина MII (MII–bus). MII–bus осуществляет трансфер управляющей информации между MAC и PHY посредством последовательно управляющего интерфейса MDIO (Management Data Input/Output). Как обычно бывает в мире стандартов, всегда есть некая база, основа (в нашем случае, интерфейс MII). На этой основе со временем строятся дальнейшие технологии (типы интерфейсов, связи, прочее). Так и в случае с MII: на данный момент есть несколько основных подтипов данного интерфейса: RMII, GMII, RGMII, SGMII.
+
+Останавливаться детально на их различии я не буду.  В посте ниже упоминаться будут лишь два из них – SGMII и RGMII. Чтобы не вводить в ступор читателя, кратко (лишь для очертаний понимания) что это за звери.
+
+**RGMII** (*Reduced Gigabit Media Independent Interface*), ключевое слово Reduced – означает, что для реализации сетевого общения через данный интерфейс понадобиться вдвое меньше физических контактов (основная идея уменьшения – уменьшение сложности обвязки схем за счет гораздо меньшего количества дорожек с сигналами, ведь представьте, современные чипы поддерживают более 10 портов на едином чипе, что вкупе с более 20 пинами на каждый интерфейс ведет к огромному количеству контактов, требующих разводки).
+
+**SGMII** (*Serial Gigabit Media Independent Interface*), ключевое слово Serial. Данный интерфейс работает через последовательный интерфейс, а не через параллельный (как например тот же RGMII). Последовательный интерфейс требует лишь несколько пар для для передачи информации (минимум сейчас для SGMII – 2 пары контактов!). Ну и как минус, правда практически нулевой, наличие на плате промежуточного механизма, сериализирующего (из параллельного в последовательный) и десериализирующего (наоборот) поток данных с помощью еще одного интерфейса TBI. Этот механизм называется SerDes. К примеру на рассматриваемой плате, SerDes имеется в составе процессора P1021.
+
+**eTSEC** (*enhanced three-speed Ethernet controllers*) – так называют конфигурируемый контроллер, в составе чипа или процессора на какой-либо плате (как в нашем случае, eTSEC контроллер входит в состав проца P1021 от Freescale, и не один, а целых три). Он является главным Ethernet контроллером на плате и имеет все необходимое для реализации разного рода интерфейсов (уже упомянутые MII, RMII, GMII, прочее) для связи с разной медийной средой (PHY слоем и PHY устройствами), как правило, внешней (external PHY). Контроллер eTSEC программируется через ряд регистров и может выполнять функции RGMII, а может (при наличии SerDes на плате) и SGMII. Правда в случае SGMII придется еще и TBI регистры прошивать (помните, я говорил, что с SerDes общение идет через TBI?).
+
+## Включение mii в образ загрузчика
+
+Теперь объединим понятия. U–Boot в своем составе имеет не только желание и возможность общаться с ядром, но и обладает набором определенных специализированных утилит для выполнения разного рода задач на промежуточном этапе загрузки системы (когда загрузчик уже загружен, но ядру передавать бразды правления еще не собирается). Работа происходит в командной строке оболочки путем набора команд. Степень полноты этого набора (утилит и программ) определяется в заголовочных файлах конкретных платформ (открываем любой файл по пути **u–boot/include/configs/** и смотрим секцию "***Command line configuration***"). Однако не стоит перечислять весь набор утилит (список существеннен). Большинство команд по умолчанию уже включено (каких именно? – смотрим в корень репозитория на файл README и просветляемся).
+
+Если же желаемой и столь необходимой команды нет в списке доступных (команда ***help*** в шелле U–BOOT'а подсказывает), то в заголовочном файле для конкретной борды (все тот же путь ***./u–boot/include/configs***) прописываем определенную константу CONFIG\_CMD\_[tool-name].
+
+Так, для работы с регистрами PHY устройств через MII в U–BOOT есть утилита mii, которая по-умолчанию как раз не входит в образ загрузчика. Соответствующая ей константа (читаем секцию файла README) называется CONFIG\_CMD**\_MII**. Добавляем строчку в конфиг борды:
+
+{% highlight bash %}
+#define CONFIG_CMD_MII
+{% endhighlight %}
+
+Подключили, радуемся. Теперь грузим плату с новый образом загрузчика для проведения тестов. Предположим, что все прошло удачно и перед вами окно терминала с командной строкой U–BOOT.
+
+## Использование утилиты mii
+
+Команда **man** в U–BOOT отсутствует. Воспользуемся заменой:
+
+{% highlight bash linenos=table %}
+=> help mii
+mii - MII utility commands
+
+Usage:
+mii device – list available devices
+mii device <devname> – set current device
+mii info <addr> – display MII PHY info
+mii read <addr> <reg> – read MII PHY <addr> register <reg>
+mii write <addr> <reg> <data> – write MII PHY <addr> register <reg>
+mii dump <addr> <reg> – pretty-print <addr> <reg> (0-5 only)
+Addr and/or reg may be ranges, e.g. 2-7.
+{% endhighlight %}
+
+Команда help <tool_name> дает краткую справку об утилите. Также для получени краткой справки иногда прокатывает указание просто имени утилиты без параметров. Но не со всеми, так что лучше пользоваться help'ом.
+
+По именам доступных команд (утилит) уже можно судить о роли ими выполняемой. Рассмотрим все команды кроме команды записи – думаю тут можно будет справиться самостоятельно.
+
+### Работа с устройствами
+
+Получаем список устройств (доступных интерфейсов) – команда ***mii device***:
+{% highlight bash %}
+=> mii device
+MII devices: 'eTSEC1' 'eTSEC2' 'eTSEC3'
+Current device: 'eTSEC1'
+
+=> mii device eTSEC2
+=> mii device
+MII devices: 'eTSEC1' 'eTSEC2' 'eTSEC3'
+Current device: 'eTSEC2'
+{% endhighlight %}
+
+Информация о всех PHY устройствах может быть получена через команду ***mii info*** (без указания адреса):
+
+{% highlight bash %}
+=> mii info
+PHY 0x01: OUI = 0x5043, Model = 0x0D, Rev = 0x04, 1000baseX, FDX
+PHY 0x02: OUI = 0xA0C3, Model = 0x0D, Rev = 0x04, 1000baseX, HDX
+PHY 0x03: OUI = 0x5043, Model = 0x0D, Rev = 0x04, 1000baseX, HDX
+PHY 0x04: OUI = 0x5043, Model = 0x0D, Rev = 0x04, 1000baseX, HDX
+PHY 0x1F: OUI = 0x0000, Model = 0x00, Rev = 0x00, 1000baseX, HDX
+{% endhighlight %}
+
+Здесь:
+
+ - **PHY 0xXX** – адрес устройства PHY
+ - **OUI** – Organizationally Unique Identifier, однозначно идентифицирует вендора или производителя устройства. в составе MAC адреса это три старших байта.
+ - **Model** – ID модели устройства
+ - **Rev** – ID ревизии устройства
+ - **1000baseX, FDX** – тип соединения. FDX – full duplex, HDX – half duplex
+
+ Та же команда, но для конкретного устройства (дополняется адресом устройства):
+ 
+{% highlight bash %}
+ => mii info 1
+PHY 0x01: OUI = 0x5043, Model = 0x0D, Rev = 0x04, 1000baseX, FDX
+{% endhighlight %}
+
+### Работа с регистрами
+Теперь самое вкусное – регистры. Их много и большую часть можно прочесть используя команды **mii read** и **mii dump**.
+
+Стандарт MII определяет небольшой набор регистров:
+
+ - **Basic Mode Configuration** (#0) – этот регистр определяет операции передатчика (transceiver operations).
+ - **Status Word** (#1) – наиболее важный и информативный регистр. По выставленным битам можно судить об успехе или неудаче сетевого соединения.
+ - **PHY Identification** (#2, #3) – эти два регистра однозначно идентифицируют чип
+ - **Ability Advertisement** (#4) – этот и следующий регистры используются для обмена информацией о возможностях доступных партнеру соединения (например такую информацию после связи общения (autonegotiation) трансивер обычно отправляет своему партнеру по соединению)
+ - **Link Partner Ability** (#5) – см. регистр #4
+ - **Auto Negotiation Expansion** (#6) – регистр может содержать дополнительную информацию для обмена
+
+Для быстрого просмотра содержимого регистров можно воспользоваться командой read. Прочтем для примера ID PHY устройства с адресом 1:
+
+{% highlight bash %}
+ => mii info 1
+PHY 0x01: OUI = 0x5043, Model = 0x0D, Rev = 0x04, 1000baseX, FDX
+{% endhighlight %}
+
+Или так:
+
+{% highlight bash %}
+=> mii read 1 2-3
+addr=01 reg=02 data=0141
+addr=01 reg=03 data=0CD4
+{% endhighlight %}
+
+Значения равные **0xFFFF** или **0×0000** могут судить о том, что устройство с указанным адресом не найдено на шине.
+
+Другая команда (dump) позволяет получить более подробную информация о тех же самых регистров. Команда выводит побитную интерпретацию битов указанного регистра. Выведим информацию обо всех доступных регистрах. К сожалению, сделать это мы сможет только для первых 6 регистров (0–5), регистр #6 доступен лишь в интерпретации команды **read**.
+
+{% highlight bash %}
+=> mii dump 1 0
+0. (1140) -- PHY control register --
+(8000:0000) 0.15 = 0 reset
+(4000:0000) 0.14 = 0 loopback
+(2040:0040) 0. 6,13 = b10 speed selection = 1000 Mbps
+(1000:1000) 0.12 = 1 A/N enable
+(0800:0000) 0.11 = 0 power-down
+(0400:0000) 0.10 = 0 isolate
+(0200:0000) 0. 9 = 0 restart A/N
+(0100:0100) 0. 8 = 1 duplex = full
+(0080:0000) 0. 7 = 0 collision test enable
+(003f:0000) 0. 5- 0 = 0 (reserved)
+{% endhighlight %}
+
+{% highlight bash %}
+=> mii dump 1 1
+1. (796d) -- PHY status register --
+(8000:0000) 1.15 = 0 100BASE-T4 able
+(4000:4000) 1.14 = 1 100BASE-X full duplex able
+(2000:2000) 1.13 = 1 100BASE-X half duplex able
+(1000:1000) 1.12 = 1 10 Mbps full duplex able
+(0800:0800) 1.11 = 1 10 Mbps half duplex able
+(0400:0000) 1.10 = 0 100BASE-T2 full duplex able
+(0200:0000) 1. 9 = 0 100BASE-T2 half duplex able
+(0100:0100) 1. 8 = 1 extended status
+(0080:0000) 1. 7 = 0 (reserved)
+(0040:0040) 1. 6 = 1 MF preamble suppression
+(0020:0020) 1. 5 = 1 A/N complete
+(0010:0000) 1. 4 = 0 remote fault
+(0008:0008) 1. 3 = 1 A/N able
+(0004:0004) 1. 2 = 1 link status
+(0002:0000) 1. 1 = 0 jabber detect
+(0001:0001) 1. 0 = 1 extended capabilities
+{% endhighlight %}
+
+{% highlight bash %}
+=> mii dump 1 2
+2. (0141) -- PHY ID 1 register --
+(ffff:0141) 2.15- 0 = 321 OUI portion
+{% endhighlight %}
+
+{% highlight bash %}
+=> mii dump 1 3
+3. (0cd4) -- PHY ID 2 register --
+(fc00:0c00) 3.15-10 = 3 OUI portion
+(03f0:00d0) 3. 9- 4 = 13 manufacturer part number
+(000f:0004) 3. 3- 0 = 4 manufacturer rev. number
+{% endhighlight %}
+
+{% highlight bash %}
+=> mii dump 1 4
+4. (01e1) -- Autonegotiation advertisement register --
+(8000:0000) 4.15 = 0 next page able
+(4000:0000) 4.14 = 0 reserved
+(2000:0000) 4.13 = 0 remote fault
+(1000:0000) 4.12 = 0 reserved
+(0800:0000) 4.11 = 0 asymmetric pause
+(0400:0000) 4.10 = 0 pause enable
+(0200:0000) 4. 9 = 0 100BASE-T4 able
+(0100:0100) 4. 8 = 1 100BASE-TX full duplex able
+(0080:0080) 4. 7 = 1 100BASE-TX able
+(0040:0040) 4. 6 = 1 10BASE-T full duplex able
+(0020:0020) 4. 5 = 1 10BASE-T able
+(001f:0001) 4. 4- 0 = 1 selector = IEEE 802.3
+{% endhighlight %}
+
+{% highlight bash %}
+=> mii dump 1 5
+5. (45e1) -- Autonegotiation partner abilities register --
+(8000:0000) 5.15 = 0 next page able
+(4000:4000) 5.14 = 1 acknowledge
+(2000:0000) 5.13 = 0 remote fault
+(1000:0000) 5.12 = 0 (reserved)
+(0800:0000) 5.11 = 0 asymmetric pause able
+(0400:0400) 5.10 = 1 pause able
+(0200:0000) 5. 9 = 0 100BASE-T4 able
+(0100:0100) 5. 8 = 1 100BASE-X full duplex able
+(0080:0080) 5. 7 = 1 100BASE-TX able
+(0040:0040) 5. 6 = 1 10BASE-T full duplex able
+(0020:0020) 5. 5 = 1 10BASE-T able
+(001f:0001) 5. 4- 0 = 1 selector = IEEE 802.3
+{% endhighlight %}
+
+Как видно, mii утилита сама подписывает что значит каждый бит каждого регистра. Очень удобно.
+
+Если заинтересуют исходники утилиты, вот где лежит основной файл, отвечающий за прием и обработку команд утилиты: **./u–boot/common/cmd_mii.c**
+
+## Ссылки
+
+1. [Официальная страница U–BOOT](http://www.denx.de/wiki/U-Boot)
+2. Что такое [MDIO](http://en.wikipedia.org/wiki/Management_Data_Input/Output),
+[DIO](http://en.wikipedia.org/wiki/Media_Independent_Interface), [OUI](http://en.wikipedia.org/wiki/Organizationally_Unique_Identifier), список [OUI](http://standards.ieee.org/develop/regauth/oui/oui.txt)
+3. Конфигурация SGMII для процессора MPC8313 от Freescale — ищите по имени документа "Configuring SGMII Ethernet on the PowerQUICC™ MPC8313E Processor"
+4. Хорошее введение в [предпосылки создания RGMII и SGMII](http://www.eetimes.com/design/communications-design/4142422/Going-Serial-in-Gigabit-Ethernet-Designs)
+<br>
+<br>
+<p>{% if page.previous.url %} <a href="{{page.previous.url}}" title="Previous Post: {{page.previous.title}}">&laquo; Previous Blog Post</a> {% endif %} | <a href="#">Back to top</a> | {% if page.next.url %} <a href="{{page.next.url}}" title="Next Post: {{page.next.title}}">Next Blog Post &raquo; </a> {% endif %} </p>
+<br><br><hr>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+var disqus_shortname = 'gahcep';
+				(function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
