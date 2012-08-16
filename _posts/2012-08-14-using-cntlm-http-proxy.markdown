@@ -183,4 +183,6 @@ export http_proxy="localhost:3128"
 1. [Официальный сайт Cntlm](http://cntlm.sourceforge.net/) 
 2. [Подробный FAQ](http://www.makelinux.net/man/1/C/cntlm) по Cntlm на сайте [makelinux.net](http://www.makelinux.net)
 3. [NTLMAPS](http://ntlmaps.sourceforge.net/) — альтернатива Cntlm
-3. Статья на [habrahabr.ru](http://habrahabr.ru) — [Авторизующий прокси под Windows](http://habrahabr.ru/post/138699/). В статье про [NTLMAPS](http://ntlmaps.sourceforge.net/), Cntlm и про NTLM авторизацию в броузерах. 
+4. Статья на [habrahabr.ru](http://habrahabr.ru) — [Авторизующий прокси под Windows](http://habrahabr.ru/post/138699/). В статье про [NTLMAPS](http://ntlmaps.sourceforge.net/), Cntlm и про NTLM авторизацию в броузерах. 
+5. Определение [NTLM](http://en.wikipedia.org/wiki/NTLM) на английской Википедии.
+6. Подробное описание протокола — [NTLM Authentication Protocol and Security Support Provider](http://davenport.sourceforge.net/ntlm.html)
