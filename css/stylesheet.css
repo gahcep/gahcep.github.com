@@ -257,11 +257,6 @@ form {
   padding: 20px;
 }
 
-img {
-  width: 100%;
-  max-width: 100%;
-}
-
 /*******************************************************************************
 Full-Width Styles
 *******************************************************************************/
@@ -453,10 +448,13 @@ gaHcep's additions
     padding:0px;
 }
 
-#sidebar-inner-left li {
-  /*list-style:none; */
-  margin:0;
-  padding:0;
+#sidebar-inner-left ul {
+  padding-left: 30px;
+}
+
+#sidebar-inner-left ul li {
+  list-style: disc outside none;
+  padding: 0;
 }
 
 #g_footer {
