@@ -236,19 +236,3 @@ addr=01 reg=03 data=0CD4
 [DIO](http://en.wikipedia.org/wiki/Media_Independent_Interface), [OUI](http://en.wikipedia.org/wiki/Organizationally_Unique_Identifier), список [OUI](http://standards.ieee.org/develop/regauth/oui/oui.txt)
 3. Конфигурация SGMII для процессора MPC8313 от Freescale — ищите по имени документа "Configuring SGMII Ethernet on the PowerQUICC™ MPC8313E Processor"
 4. Хорошее введение в [предпосылки создания RGMII и SGMII](http://www.eetimes.com/design/communications-design/4142422/Going-Serial-in-Gigabit-Ethernet-Designs)
-<br>
-<br>
-<p>{% if page.previous.url %} <a href="{{page.previous.url}}" title="Previous Post: {{page.previous.title}}">&laquo; Previous Blog Post</a> {% endif %} | <a href="#">Back to top</a> | {% if page.next.url %} <a href="{{page.next.url}}" title="Next Post: {{page.next.title}}">Next Blog Post &raquo; </a> {% endif %} </p>
-<br><br><hr>
-<div id="disqus_thread"></div>
-<script type="text/javascript">
-var disqus_shortname = 'gahcep';
-				(function() {
-                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-                dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
-                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-            })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
