@@ -200,7 +200,8 @@ blockquote {
 }
 
 ul, ol, dl {
-  margin-bottom: 15px
+  margin-bottom: 15px;
+  padding-left: 20px;
 }
 
 ul li {
@@ -209,8 +210,8 @@ ul li {
 }
 
 ol li {
-  list-style: decimal inside;
-  padding-left: 20px;
+  /*list-style: decimal inside;*/
+  list-style: decimal;
 }
 
 dl dt {
