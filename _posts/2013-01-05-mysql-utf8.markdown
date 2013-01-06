@@ -1,0 +1,345 @@
+---
+layout: post
+title: Корректная настройка MySQL для работы с UTF8
+category: MySQL, Unicode
+tags: utf8, mysql 
+author: gaHcep
+year: 2013
+month: 1
+day: 5
+published: true
+summary: Настраиваем UTF8 как кодировку по-умолчанию в MySQL. Знакомимся с параметрами Character Set и Collation для сервера и клиента, а также узнаем какие параметры важны при установке клиент-серверного соединения.
+---
+ 
+# Корректная настройка MySQL для работы с UTF8
+
+Сегодня речь пойдет о MySQL и о настройке UTF8 кодировки по-умолчанию. 
+Тема заезжена, но как я убедился за прошедшую неделю, мало кто в состоянии нормально пояснить какие параметры и куда надо прописать для полноценной работы с UTF8 в MySQL. К сожалению, ситуация на тематических блогах оставляет желать лучшего. Основной тип ответа - приведение соедржимого конфигурационного файла с комментарием типа "попробуй, у меня это работает".
+
+Основная цель данного поста — выяснить, какие параметры и с какими значениями следует прописать в конфигурационный файл my.cnf (my.ini) для дальнейшей беспроблемной работы с Юникодом. 
+
+## Рабочее окружение 
+
+UTF8 на данный момент у меня успешно работает в Мастер-Слейв конфигурации:
+
+- MySQL версии 5.1.66
+- Два сервера CentOS версии 6.3
+- Репликация между серверами Master-Slave на базе SSL
+
+Любой внешний клиент в состоянии корректно работать с UTF8 базой (проверено на EMS Manager for MySQL c Windows 8 x64).
+
+Все опции и настройки я привожу для версии сервера 5.1.x, однако с минимальными (а то и вовсе без оных) изменениями все это будет работать и на версиях 5.5.x и 5.6.x.
+
+## Параметры кодировок MySQL
+
+Довольно часто приходится видеть в ответах на вопросы о настройке UTF8 следующее:
+
+    [mysqld]
+    init_connect='SET collation_connection = utf8_general_ci'
+    init_connect='SET NAMES utf8'
+    default-character-set=utf8
+    character-set-server=utf8
+    collation-server=utf8_general_ci
+    skip-character-set-client-handshake 
+
+Предполагается, что после вставки всего этого добра (тут кстати есть противоречащие друг другу опции) в конфигурационный файл my.cnf (my.ini) магический Юникод начнет работать. 
+
+Но давайте забудем о списке и попытаемся разбираться со всеми опциями сами и начнем с самого начала. То есть с документации. Потому как все это прекрасно описано в документации MySQL на [официальном сайте](http://dev.mysql.com/doc/refman/5.1/en/index.html). Я лишь постораюсь последовательно рассказать о параметрах сервера и прояснить неясные моменты.
+
+Главный раздел по описанию кодировок (**character sets**) и их представлений (**collations** - используется например при сортировке) в контексте сервера, базы, таблиц — это секция [10.1.3. Specifying Character Sets and Collations](http://dev.mysql.com/doc/refman/5.1/en/charset-syntax.html).
+
+Символьная кодировка может быть задана для: 
+
+1. сервера,
+2. базы данных, 
+3. таблицы и 
+4. колонок в таблице. 
+
+Сделано это для гибкой настройки баз данных и доступа клиентов с разными кодировками. Однако, последнее не входит в область рассмотрения данного поста, поэтому будем рассматривать вариант с кодировкой UTF8 настроенной для всего по-умолчанию.
+
+Все параметры могут быть переданы серверу тремя разными способами:
+
+1. через **командную** строку mysqld
+2. через **конфигурационный** файл my.cnf (my.ini)
+3. через опции **компиляции**.
+
+Второй и третий варианты рассматриваться не будут. Тут уместно будет просто прочитать официальные доки — в каждом разделе приведены примеры конфигурации с использованием всех трех способов. Я же буду использовать первый вариант. 
+
+#### Кодировка (character set) и представление (collation) сервера
+
+Секция [10.1.3.1. Server Character Set and Collation](http://dev.mysql.com/doc/refman/5.1/en/charset-server.html)
+
+**Кодировка** (characher set) - набор используемых символов.  
+**Представление** (collation) - набор правил для сравнения символов в наборе.  
+
+Тут есть несколько фундаментальных вещей которые надо понимать.
+
+Основные параметры используемые в контексте ***сервера*** — это **`character_set_server`** и **`collation_server`**. Оба параметра влияют на определение кодировки и отображения сервера MySQL. 
+
+Можно задать оба параметра либо только один из них. При этом важно знать как задача того или иного влияет на определение отсутствующего:
+
+ - Не заданы - используются значения по умолчанию (дефолтные),
+
+ - Заданы оба - используются указанные кодировка и ее представление,
+
+ - Задана только кодировка — ее представление выставляется по умолчанию для данного типа кодировки. Что это значит? Для каждого типа кодировки есть ее дефолтное представление, например, дефолтная кодировка сервера - **`latin1`**, а дефолтное отображение для нее - **`latin1_swedish_ci`**. 
+ Посмотреть соответствие кодировки и ее дефолтного представления можно используя команду:
+   > SHOW COLLATION LIKE 'your\_character\_set_name';
+
+   Пример:
+
+   > mysql> SHOW COLLATION LIKE 'latin1%';
+
+    	+-------------------+---------+----+---------+----------+---------+
+		| Collation         | Charset | Id | Default | Compiled | Sortlen |
+		+-------------------+---------+----+---------+----------+---------+
+		| latin1_german1_ci | latin1  |  5 |         | Yes      |       1 |
+		| latin1_swedish_ci | latin1  |  8 | Yes     | Yes      |       1 |
+		| latin1_danish_ci  | latin1  | 15 |         | Yes      |       1 |
+		| latin1_german2_ci | latin1  | 31 |         | Yes      |       2 |
+		| latin1_bin        | latin1  | 47 |         | Yes      |       1 |
+		| latin1_general_ci | latin1  | 48 |         | Yes      |       1 |
+		| latin1_general_cs | latin1  | 49 |         | Yes      |       1 |
+		| latin1_spanish_ci | latin1  | 94 |         | Yes      |       1 |
+		+-------------------+---------+----+---------+----------+---------+
+
+ Поле **Default** дает ответ о представлении выбранной кодировки.
+
+В нашем случае, при настройке дефолтной кодировки в UTF8, параметры **должны** быть определены, так как могут быть использованы при определении кодировки или представления ***базы данных***:
+
+Наши команды:  
+**my.cnf (my.ini)**
+
+ > **[mysqld]**  
+   character-set-server = utf8  
+   collation-server = utf8\_unicode_ci
+
+Дефолтное представление для utf8 - **`utf8_general_ci`**, так что если бы мы его использовали вместо **`utf8_unicode_ci`**, то параметр **`collation_server`** можно было бы вообще опустить.
+
+
+#### Кодировка (character set) и представление (collation) базы данных
+
+Секция [10.1.3.2. Database Character Set and Collation](http://dev.mysql.com/doc/refman/5.1/en/charset-database.html)  
+Секция [10.1.4. Connection Character Sets and Collations](http://dev.mysql.com/doc/refman/5.1/en/charset-connection.html)
+
+Тут есть два варианта определения кодировки и представления: 
+
+ - явно — при выполнении запроса на создание базы данных: 
+
+    > CREATE DATABASE db\_name CHARACTER SET latin1 COLLATE latin1\_swedish_ci;
+
+ - неявно через переменные **`character_set_database`** и **` collation_database`**.
+Однако, эти переменные [нельзя](http://dev.mysql.com/doc/refman/5.1/en/server-system-variables.html#sysvar_character_set_database) задать явно ни в командной строке ни в конфигурационном файле. Как они инициализируются - чуть ниже.
+
+Вообще при работе с ***базой данных*** огромную роль помимо серверных настроек играют настройки  клиент-серверного **соединения** (connection). На этом этапе вступают в игру следующие специфичные для соединения параметры:
+
+ - **`character_set_client`** - кодировка в которой посылается запрос от клиента
+ - **`character_set_connection`** - кодировка используемая для конвертации пришедшего запроса (statement'а)
+ - **`character_set_results`** - кодировку, в которую сервер должен перевести результат перед его отправкой клиенту
+
+Есть еще представление кодировки соединения (**`colation_connection`**). Для чего нужен этот параметр думаю пояснять не надо.
+
+Озадачиваться проблемой инициализации всех этих переменных не стоит (хотя в нашем случае присвоить им значения **необходимо**). 
+Есть способ проще: существует два типа запросов (statements) которые задают настройки соединения клиента с сервером группой:
+
+##### Запрос SET NAMES 'charset\_name' [COLLATE 'collation_name']
+
+-----
+
+Параметр определяет в какой кодировке теперь будут приходить сообщения для сервера от клиента. Прелесть в том, что запрос **`SET NAMES x`** эквивалентен следующей группе:
+
+ > SET character\_set\_client = x;  
+   SET character\_set\_results = x;  
+   SET character\_set\_connection = x;
+
+Для определении представления кодировки соединения (**`colation_connection`**) отличного от дефолтного, следует дополнить запрос:
+
+ > SET NAMES x **COLLATE y**
+
+А так как у нас utf8 и ее дефолтное представление **`utf8_general_ci`**, то нам **нужно** выпонить полный запрос:
+
+ > SET NAMES utf8 COLLATE utf8\_unicode_ci
+
+Таким образом, используя **только** этот запрос, можно добиться корректной UTF8 инициализации соединения.
+
+Однако, тут есть один нюанс:
+
+**`SET NAMES x`**, как понятно из определения, определяет настройку **клиента** при коннекте к серверу. Но что делать, если клиент - сам mysql.exe и нам хочется установить **`collation_connection`** по-умолчанию, не выполняя каждый раз **`SET NAMES x`** при коннекте?   
+Для этих целей, существует еще один параметр - **`default_character_set`**. 
+Он [эквивалентен](http://dev.mysql.com/doc/refman/5.0/en/charset-configuration.html) запросу **`SET NAMES utf8`**. В случае его использования задать **`collation_connection`** отличный от дефолтного уже не получится, поэтому придется заюзать еще одну команду [**`init_connect`**](http://dev.mysql.com/doc/refman/5.1/en/server-system-variables.html#sysvar_init_connect) (так как напрямую collation_connection [нельзя](http://dev.mysql.com/doc/refman/5.1/en/server-system-variables.html#sysvar_collation_connection) прописать в конфигурационном файле):
+
+ > init\_connect='SET collation\_connection = utf8\_unicode\_ci'
+
+Но и тут есть еще одно но: **`init_connect`** команда не выполняется для SUPER пользователей - пользователей, обладающих привилегией SUPER. root входит в этот перечень, поэтому при коннекте root'ом команду **`SET collation_connection = utf8_unicode_ci`** все же придется выполнить вручную.
+
+##### Запрос SET CHARACTER SET charset_name
+
+-----
+
+Запрос групповой и он также эквивалентен следующей группе:
+
+ > SET character_set_client = x;  
+   SET character_set_results = x;  
+   SET collation_connection = @@collation_database;
+
+[Согласно документации](http://dev.mysql.com/doc/refman/5.1/en/charset-connection.html), разница между двумя запросами в том, что параметры **`character_set_connection`** и **`collation_connection`** будут установлены на **`@@character_set_database`** и **`@@collation_database`** соответственно (выше я про них упоминал). 
+
+За более детальной информацией отсылаю по двум источникам - собственно к официальной документации и прекрасно оформленному [ответу](http://stackoverflow.com/a/1566908/889576) на stackoverflow.com. 
+Для нашей задачи вполне хватает первого параметра вместе с дополнительной командой.
+
+
+**Подытожим**: различные сценарии и что юзается на каждом из них - относительно к настройкам соединения:
+
+ - Если к базе коннектится mysql.exe клиент с пользователем с привилегией SUPER:
+    - срабатывает опция в конфигурационном файле **`default_character_set = utf8`**
+    - надо выполнить вручную команду **`init_connect='SET collation_connection = utf8_unicode_ci'`**
+ - Если к базе коннектится mysql.exe клиент с пользователем без привилегии SUPER:
+    - срабатывает опция в конфигурационном файле **`default_character_set = utf8`**
+    - срабатывает команда в конфигурационном файле **`init_connect='SET collation_connection = utf8_unicode_ci'`**
+ - Если к базе коннектится внешний клиент:
+    - надо выполнить вручную команду **`SET NAMES utf8 COLLATE utf8_unicode_ci`**
+
+
+Наши команды:  
+**my.cnf (my.ini)**
+ 
+ > **[client]**  
+   default\_character_set = utf8
+
+ > **[mysqld]**  
+   init\_connect='SET collation\_connection = utf8\_unicode_ci'
+
+
+#### Кодировка (character set) и представление (collation) таблиц
+
+Секция [10.1.3.3. Table Character Set and Collation](http://dev.mysql.com/doc/refman/5.1/en/charset-table.html)
+
+
+Тут все довольно просто. Задать кодировку и ее представление можно через команды:
+
+> CREATE TABLE t1 ( ... )  
+CHARACTER SET utf8 COLLATE utf8\_unicode_ci;
+
+Тут главное иметь в виду, что если эти настройки не заданы, то берутся настройки базы данных (см. пред. раздел). Нам эти настройки не интересны.
+
+
+#### Кодировка (character set) и представление (collation) таблиц
+
+Секция [10.1.3.4. Column Character Set and Collation](http://dev.mysql.com/doc/refman/5.1/en/charset-column.html)
+
+Тут по аналогии с пред. секцией. Если параметры кодировок не указаны, берутся те, что указывались для таблицы.
+
+Прежде чем перейти к след. разделу, должен сказать, что все команды и запросы относятся к указанной версии MySQL и в случае возникновения каких-либо [проблем](http://stackoverflow.com/questions/3513773/change-mysql-default-character-set-to-utf8-in-my-cnf) советую обратиться к соответствующей версии документации.
+
+#### skip-character-set-client-handshake
+ 
+Помимо освещенных параметров, есть еще один довольно часто фигурирующий в разного рода источниках - [skip-character-set-client-handshake](http://dev.mysql.com/doc/refman/5.6/en/server-options.html#option_mysqld_character-set-client-handshake). Установка этого параметра  позволит проигнорировать информацию клиента о кодировке. Я данный параметр не использовал.
+
+### Верификация настроек
+
+Итак, вот финальный snapshot наших изменений в файле my.cnf (my.ini):
+
+ > **[mysqld]**  
+   init\_connect='SET collation\_connection = utf8\_unicode\_ci'  
+   character-set-server = utf8  
+   collation-server = utf8\_unicode_ci
+
+ > **[client]**  
+   default\-character-set = utf8
+
+После применения всех опций и рестарта сервера mysql для проверки настроек можно выспользоваться командами **`SHOW VARIABLES LIKE 'char%'`** и **`SHOW VARIABLES LIKE 'collation%'`**;
+
+Состояние среды до изменений:
+
+    mysql> SHOW VARIABLES LIKE'character%';
+	+--------------------------+----------------------------+
+	| Variable_name            | Value                      |
+	+--------------------------+----------------------------+
+	| character_set_client     | latin1                     |
+	| character_set_connection | latin1                     |
+	| character_set_database   | latin1                     |
+	| character_set_filesystem | binary                     |
+	| character_set_results    | latin1                     |
+	| character_set_server     | latin1                     |
+	| character_set_system     | utf8                       |
+	| character_sets_dir       | /usr/share/mysql/charsets/ |
+	+--------------------------+----------------------------+
+	
+	mysql> SHOW VARIABLES LIKE 'collation%';
+	+----------------------+-------------------+
+	| Variable_name        | Value             |
+	+----------------------+-------------------+
+	| collation_connection | latin1_swedish_ci |
+	| collation_database   | latin1_swedish_ci |
+	| collation_server     | latin1_swedish_ci |
+	+----------------------+-------------------+
+	  
+Состояние среды после изменений (в случае, если вы приконнектились не SUPER пользователем):
+
+	mysql> SHOW VARIABLES LIKE 'character%';
+	+--------------------------+----------------------------+
+	| Variable_name            | Value                      |
+	+--------------------------+----------------------------+
+	| character_set_client     | utf8                       |
+	| character_set_connection | utf8                       |
+	| character_set_database   | utf8                       |
+	| character_set_filesystem | binary                     |
+	| character_set_results    | utf8                       |
+	| character_set_server     | utf8                       |
+	| character_set_system     | utf8                       |
+	| character_sets_dir       | /usr/share/mysql/charsets/ |
+	+--------------------------+----------------------------+
+	
+	mysql> SHOW VARIABLES LIKE 'collation%';
+	+----------------------+-----------------+
+	| Variable_name        | Value           |
+	+----------------------+-----------------+
+	| collation_connection | utf8_unicode_ci |
+	| collation_database   | utf8_unicode_ci |
+	| collation_server     | utf8_unicode_ci |
+	+----------------------+-----------------+
+	
+Для примера, вот отличие при соединении через mysql.exe пользователем с и без привилегии SUPER:
+
+с привилегией:
+
+	mysql> SHOW VARIABLES LIKE 'collation%';
+	+----------------------+-----------------+
+	| Variable_name        | Value           |
+	+----------------------+-----------------+
+	| collation_connection | **utf8_general_ci** |
+	| collation_database   | utf8_unicode_ci |
+	| collation_server     | utf8_unicode_ci |
+	+----------------------+-----------------+
+
+с привилегией и выполненной вручную командой 'SET collation_connection = utf8_unicode_ci':
+
+	mysql> SHOW VARIABLES LIKE 'collation%';
+	+----------------------+-----------------+
+	| Variable_name        | Value           |
+	+----------------------+-----------------+
+	| collation_connection | utf8_unicode_ci |
+	| collation_database   | utf8_unicode_ci |
+	| collation_server     | utf8_unicode_ci |
+	+----------------------+-----------------+
+
+без привилегии:
+	
+	mysql> SHOW VARIABLES LIKE 'collation%';
+	+----------------------+-----------------+
+	| Variable_name        | Value           |
+	+----------------------+-----------------+
+	| collation_connection | utf8_unicode_ci |
+	| collation_database   | utf8_unicode_ci |
+	| collation_server     | utf8_unicode_ci |
+	+----------------------+-----------------+
+
+Поздравляю, теперь ваши база, таблицы и все в таблицах по-умолчанию в кодировке UTF8.
+
+---
+
+## Ссылки
+
+1. [Официальное руководство MySQL версии 5.1](http://dev.mysql.com/doc/refman/5.1/en/index.html)
+2. [Отличие **utf8\_unicode_ci** от **utf8\_general\_ci**](http://stackoverflow.com/a/766996/889576)
+3. "[MySQL Character Set Support](http://www.informit.com/articles/article.aspx?p=328641)" на informit.com позволит вам больше узнать о том что есть **characher set** и **collation**.
