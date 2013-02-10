@@ -8,7 +8,7 @@ year: 2013
 month: 2
 day: 10
 published: true
-summary: ...
+summary: Знакомимся с тестированием в Python. Анонс цикла статей 'QA in Python'. Изучаем модуль unittest, принципы написания тестов, классов и модулей, а также механизмы работы с тестами.
 ---
  
 # Quality Assurance in Python - работаем с unittest
