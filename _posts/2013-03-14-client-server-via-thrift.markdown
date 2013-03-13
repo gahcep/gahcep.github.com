@@ -405,7 +405,7 @@ class Program
 Код простой и по логике имеет много общего с кодом сервера на Python.
 Пара замечаний:
 
-* **`TSocket socket = new TSocket("192.168.18.133", 9910);` ** 
+* **`TSocket socket = new TSocket("192.168.18.133", 9910);`**  
 192.168.18.133 - IP адрес моей виртуальной машины с запущенным сервером на Python.
 
 * **`var res = client.addition(100, 200);`**  
@@ -417,7 +417,7 @@ class Program
 
 Поздравляю, клиент-серверная приложение успешно работает через библиотеку Apache Thrift.
 
-На этом все. Файлы проекта можно [скачать]("/files/client-server-via-thrift/thriftdemo.7z").
+На этом все. Файлы проекта можно [скачать]("http://gahcep.github.com/files/client-server-via-thrift/thriftdemo.7z").
 
 ## Ссылки
 
