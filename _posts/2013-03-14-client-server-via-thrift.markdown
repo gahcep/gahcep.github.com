@@ -330,7 +330,7 @@ Apache Thrift можно собрать в Visual Studio - в архиве с ф
 Файл с определением структуры
 
  * **CalcService.cs**  
-Главный файл с реализацией интерфейса, классов Processor и Client
+Главный файл с реализацией интерфейса, классов **Processor** и **Client**
 
 ### 3. Создаем и настраиваем проекты Visual Studio
 
@@ -340,12 +340,12 @@ Apache Thrift можно собрать в Visual Studio - в архиве с ф
 
 2. Добавьте к текущему решению (solution) новый пустой (Empty Project) проект (через **`DoubleClick -> Add->New Project`**). Название - **CalcSimpleServerCore**. Директория - **`<thriftclient>`**.
 
-Теперь пора в директорию <thriftclient>/CalcSimpleServerCore скопировать/перенести все требуемые для дальнейшего билда клиента файлы: 
+Теперь пора в директорию **`<thriftclient>/CalcSimpleServerCore`** скопировать/перенести все требуемые для дальнейшего билда клиента файлы: 
 
- * thrift.exe компилятор, полученный на шаге отстройки Thrift решения
- * Thrift.dll файл, полученный на том же шаге
- * IDL файл calcsimple.thrift с описание нашего сервиса, лежащий в <thriftclient>
- * Директорию со сгенерированными файлами gen-csharp - там же
+ * **thrift.exe** компилятор, полученный на шаге отстройки Thrift решения
+ * **Thrift.dll** файл, полученный на том же шаге
+ * **IDL файл calcsimple.thrift** с описанием нашего сервиса, лежащий в `<thriftclient>`
+ * Директорию со сгенерированными файлами **gen-csharp** - там же
 
 Добавьте в проект **CalcSimpleServerCore** всю директорию **gen-csharp** и в зависимости укажите **Thrift.dll** (**`DoubleClick -> Add Reference ...`**).
 
