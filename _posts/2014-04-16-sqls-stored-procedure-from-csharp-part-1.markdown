@@ -1,12 +1,12 @@
 ---
 layout: post
 title: Особенности работы с SQLS Stored Procedure из C# кода.
-category: Database
+category: SQL Server
 tags: sqls, c#, stored procedure
 author: gaHcep
 year: 2014
 month: 4
-day: 16
+day: 23
 published: true
 summary: Часто приходится работать с ORM? Все хорошо и довольно просто пока идет работа с таблицами, индексами и внешними ключами? Что насчет хранимых процедур? Вот этот вопрос мы и рассмотрим сегодня.
 ---
