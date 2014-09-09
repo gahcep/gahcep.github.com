@@ -1,6 +1,6 @@
 ---
 layout: post
-title: C++ библиотека для работы с Windows Services.
+title: C++ библиотека для работы с Windows Services
 category: C++
 tags: c++, windows services
 author: gaHcep

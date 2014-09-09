@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Поднимаем блог на базе Ghost.org + nginx на DigitalOcean.
+title: Поднимаем блог на базе Ghost.org + nginx на DigitalOcean
 category: DigitalOcean Ghost.org
 tags: Ghost.org, Nginx, DigitalOcean
 author: gaHcep

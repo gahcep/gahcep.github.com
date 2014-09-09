@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Особенности работы с SQLS Stored Procedure из C# кода.
+title: Особенности работы с SQLS Stored Procedure из C# кода
 category: SQL Server
 tags: sqls, c#, stored procedure
 author: gaHcep
